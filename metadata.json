@@ -1,0 +1,6 @@
+{
+  "name": "VORSA: سقوط الإمبراطوريات",
+  "description": "⚽ VORSA: سقوط الإمبراطوريات — لعبة إدارة كرة قدم احترافية باللغة العربية مع محاكاة كاملة للمواسم والتكتيكات والمؤتمرات الصحفية.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
