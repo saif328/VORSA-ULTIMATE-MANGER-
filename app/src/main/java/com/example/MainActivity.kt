@@ -2,10 +2,13 @@ package com.example
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -20,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.webkit.WebViewAssetLoader
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("SetJavaScriptEnabled")
@@ -53,6 +57,11 @@ fun VorsaWebView() {
     AndroidView(
         modifier = Modifier.fillMaxSize(),
         factory = { context ->
+            // إعداد AssetLoader لتشغيل ألعاب الـ HTML والـ Assets بآمان وبدون كراش
+            val assetLoader = WebViewAssetLoader.Builder()
+                .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context))
+                .build()
+
             WebView(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -60,8 +69,6 @@ fun VorsaWebView() {
                 )
                 setBackgroundColor(Color.parseColor("#020817"))
                 overScrollMode = View.OVER_SCROLL_NEVER
-
-                // دعم تسريع الـ Hardware لضمان عمل الألعاب بسرعة وبدون تقطيع
                 setLayerType(View.LAYER_TYPE_HARDWARE, null)
 
                 settings.apply {
@@ -70,8 +77,6 @@ fun VorsaWebView() {
                     databaseEnabled = true
                     allowFileAccess = true
                     allowContentAccess = true
-                    allowFileAccessFromFileURLs = true
-                    allowUniversalAccessFromFileURLs = true
                     cacheMode = WebSettings.LOAD_DEFAULT
                     useWideViewPort = true
                     loadWithOverviewMode = true
@@ -83,11 +88,21 @@ fun VorsaWebView() {
                 }
 
                 webViewClient = object : WebViewClient() {
+                    override fun shouldInterceptRequest(
+                        view: WebView?,
+                        request: WebResourceRequest?
+                    ): WebResourceResponse? {
+                        return request?.url?.let { assetLoader.shouldInterceptRequest(it) }
+                    }
+
                     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                         return false
                     }
 
-                    override fun onRenderProcessGone(view: WebView?, detail: android.webkit.RenderProcessGoneDetail?): Boolean {
+                    override fun onRenderProcessGone(
+                        view: WebView?,
+                        detail: android.webkit.RenderProcessGoneDetail?
+                    ): Boolean {
                         return true
                     }
                 }
@@ -96,15 +111,16 @@ fun VorsaWebView() {
                     override fun onConsoleMessage(consoleMessage: android.webkit.ConsoleMessage?): Boolean {
                         android.util.Log.d(
                             "VorsaGame",
-                            "[JS ${consoleMessage?.messageLevel()}]: ${consoleMessage?.message()} -- From line ${consoleMessage?.lineNumber()} of ${consoleMessage?.sourceId()}"
+                            "[JS ${consoleMessage?.messageLevel()}]: ${consoleMessage?.message()}"
                         )
                         return true
                     }
                 }
 
-                // تحميل ملف اللعبة
-                loadUrl("file:///android_asset/index.html")
+                // فتح اللعبة عبر النطاق الآمن المحلي
+                loadUrl("https://appassets.androidview.local/assets/index.html")
             }
         }
     )
 }
+
