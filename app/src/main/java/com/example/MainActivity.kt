@@ -1,7 +1,6 @@
 package com.example
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.viewinterop.AndroidView
@@ -28,8 +26,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        window.statusBarColor = Color.parseColor("#020817")
-        window.navigationBarColor = Color.parseColor("#020817")
+
+        try {
+            window.statusBarColor = Color.parseColor("#020817")
+            window.navigationBarColor = Color.parseColor("#020817")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         setContent {
             Box(
@@ -58,8 +61,8 @@ fun VorsaWebView() {
                 setBackgroundColor(Color.parseColor("#020817"))
                 overScrollMode = View.OVER_SCROLL_NEVER
 
-                // Use software layer type to prevent Mesa renderer node warnings in virtualized container
-                setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+                // دعم تسريع الـ Hardware لضمان عمل الألعاب بسرعة وبدون تقطيع
+                setLayerType(View.LAYER_TYPE_HARDWARE, null)
 
                 settings.apply {
                     javaScriptEnabled = true
@@ -67,6 +70,8 @@ fun VorsaWebView() {
                     databaseEnabled = true
                     allowFileAccess = true
                     allowContentAccess = true
+                    allowFileAccessFromFileURLs = true
+                    allowUniversalAccessFromFileURLs = true
                     cacheMode = WebSettings.LOAD_DEFAULT
                     useWideViewPort = true
                     loadWithOverviewMode = true
@@ -83,17 +88,21 @@ fun VorsaWebView() {
                     }
 
                     override fun onRenderProcessGone(view: WebView?, detail: android.webkit.RenderProcessGoneDetail?): Boolean {
-                        view?.destroy()
-                        return true
-                    }
-                }
-                webChromeClient = object : WebChromeClient() {
-                    override fun onConsoleMessage(consoleMessage: android.webkit.ConsoleMessage?): Boolean {
-                        android.util.Log.d("VorsaGame", "[JS ${consoleMessage?.messageLevel()}]: ${consoleMessage?.message()} -- From line ${consoleMessage?.lineNumber()} of ${consoleMessage?.sourceId()}")
                         return true
                     }
                 }
 
+                webChromeClient = object : WebChromeClient() {
+                    override fun onConsoleMessage(consoleMessage: android.webkit.ConsoleMessage?): Boolean {
+                        android.util.Log.d(
+                            "VorsaGame",
+                            "[JS ${consoleMessage?.messageLevel()}]: ${consoleMessage?.message()} -- From line ${consoleMessage?.lineNumber()} of ${consoleMessage?.sourceId()}"
+                        )
+                        return true
+                    }
+                }
+
+                // تحميل ملف اللعبة
                 loadUrl("file:///android_asset/index.html")
             }
         }
