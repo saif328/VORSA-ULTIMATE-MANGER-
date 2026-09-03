@@ -58,6 +58,9 @@ fun VorsaWebView() {
                 setBackgroundColor(Color.parseColor("#020817"))
                 overScrollMode = View.OVER_SCROLL_NEVER
 
+                // Use software layer type to prevent Mesa renderer node warnings in virtualized container
+                setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+
                 settings.apply {
                     javaScriptEnabled = true
                     domStorageEnabled = true
@@ -71,14 +74,25 @@ fun VorsaWebView() {
                     setSupportZoom(false)
                     builtInZoomControls = false
                     displayZoomControls = false
+                    mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 }
 
                 webViewClient = object : WebViewClient() {
                     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                         return false
                     }
+
+                    override fun onRenderProcessGone(view: WebView?, detail: android.webkit.RenderProcessGoneDetail?): Boolean {
+                        view?.destroy()
+                        return true
+                    }
                 }
-                webChromeClient = WebChromeClient()
+                webChromeClient = object : WebChromeClient() {
+                    override fun onConsoleMessage(consoleMessage: android.webkit.ConsoleMessage?): Boolean {
+                        android.util.Log.d("VorsaGame", "[JS ${consoleMessage?.messageLevel()}]: ${consoleMessage?.message()} -- From line ${consoleMessage?.lineNumber()} of ${consoleMessage?.sourceId()}")
+                        return true
+                    }
+                }
 
                 loadUrl("file:///android_asset/index.html")
             }
