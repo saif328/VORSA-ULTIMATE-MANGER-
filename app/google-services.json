@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "405548480581",
+    "firebase_url": "https://vorsa-ultimate-manger-default-rtdb.firebaseio.com",
+    "project_id": "vorsa-ultimate-manger",
+    "storage_bucket": "vorsa-ultimate-manger.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:405548480581:android:e5859d7967a218a09dcb2c",
+        "android_client_info": {
+          "package_name": "com.aistudio.vorsamanager.qvkp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7SguhlIX3ksb7UPYGr3GxCepTTac0IJ0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
